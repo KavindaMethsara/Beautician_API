@@ -1,24 +1,25 @@
 const { User } = require("../models/UserModel");
 
 exports.registerUser = async function (req, res) {
-    const user = new User({
-        name: req.body.name,
-        email: req.body.email,
-        username: req.body.username,
-        password: req.body.password
-    });
+  const user = new User(req.body);
 
-    try {
-        await user.save(); // Remove the callback parameter here
-        const token = await user.generateToken();
-        res.status(200).json({
-            success: true,
-            token: token
-        });
-    } catch (err) {
-        res.status(400).json({
-            success: false,
-            message: err.message
-        });
+  try {
+    const data = await user.save();
+    if (data) {
+      return res.status(200).json({
+        success: true,
+        message: "Successfully signed up!",
+      });
+    } else {
+      res.status(422).json({
+        success: false,
+        message: "Registration failed. Please check validation errors!",
+      });
     }
+  } catch (err) {
+    res.status(400).json({
+      success: false,
+      message: err,
+    });
+  }
 };
